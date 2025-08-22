@@ -1,0 +1,41 @@
+public class SmartDevice {
+    private String type, brand, os;
+    private double price;
+    private boolean heartRateMonitor, voiceAssistant;
+    public SmartDevice(String type, String brand, double price) {
+        this.type = type;
+        this.brand = brand;
+        this.price = price;
+    }
+
+    public void setOs(String os) { this.os = os; }
+    public void setHeartRateMonitor(boolean hrm) { this.heartRateMonitor = hrm; }
+    public void setVoiceAssistant(boolean va) { this.voiceAssistant = va; }
+
+    public void displayInfo() {
+        System.out.println(type + ": " + brand + ", ₹" + price);
+        if (os != null) System.out.println("OS: " + os);
+        if (type.equals("SmartWatch")) System.out.println("Heart Rate Monitor: " + heartRateMonitor);
+        if (type.equals("SmartSpeaker")) System.out.println("Voice Assistant: " + voiceAssistant);
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        SmartDevice phone = new SmartDevice("SmartPhone", "Samsung", 59999);
+        phone.setOs("Android");
+        SmartDevice watch = new SmartDevice("SmartWatch", "Apple", 39999);
+        watch.setHeartRateMonitor(true);
+        SmartDevice speaker = new SmartDevice("SmartSpeaker", "Amazon", 7999);
+        speaker.setVoiceAssistant(true);
+        phone.displayInfo();
+        watch.displayInfo();
+        speaker.displayInfo();
+        phone.setOs("Android 15");
+        watch.setHeartRateMonitor(false);
+        speaker.setVoiceAssistant(false);
+        System.out.println("After updates:\n");
+        phone.displayInfo();
+        watch.displayInfo();
+        speaker.displayInfo();
+    }
+}
