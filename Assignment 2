@@ -1,0 +1,36 @@
+package demo;
+import java.lang.reflect.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Task obj = new Task();
+        for (Method m : obj.getClass().getDeclaredMethods()) {
+            if (m.isAnnotationPresent(RunMe.class)) {
+                System.out.println("Running: " + m.getAnnotation(RunMe.class).value());
+                m.invoke(obj);
+            }
+        }
+    }
+}
+package demo;
+import java.lang.annotation.*;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface RunMe {
+    String value() default "";
+}
+
+package demo;
+
+public class Task {
+    @RunMe("Greet")
+    void greet() {
+        System.out.println("Hello!");
+    }
+
+    @RunMe("Add")
+    void add() {
+        System.out.println("Sum: " + (5 + 10));
+    }
+}
