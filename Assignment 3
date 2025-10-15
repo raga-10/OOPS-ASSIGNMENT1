@@ -1,0 +1,71 @@
+import java.util.*;
+import java.util.concurrent.atomic.*;
+
+final class Message {                       // Immutable class
+    private final String id;
+    private final String text;
+
+    public Message(String id, String text) {
+        this.id = id;
+        this.text = text;
+    }
+    public String getId() { return id; }
+    public String getText() { return text; }
+}
+
+interface Publisher<T> {
+    void publish(T obj);
+    T get();
+}
+
+class UnsafePublisher<T> implements Publisher<T> {
+    private T ref;                           // No visibility guarantee
+    public void publish(T obj) { ref = obj; }
+    public T get() { return ref; }
+}
+
+class VolatilePublisher<T> implements Publisher<T> {
+    private volatile T ref;                  // Visibility guaranteed
+    public void publish(T obj) { ref = obj; }
+    public T get() { return ref; }
+}
+
+class AtomicPublisher<T> implements Publisher<T> {
+    private final AtomicReference<T> ref = new AtomicReference<>();
+    public void publish(T obj) { ref.set(obj); }
+    public T get() { return ref.get(); }
+}
+
+public class SafePublicationDemo {
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("Unsafe Publication:");
+        testPublisher(new UnsafePublisher<>());
+
+        System.out.println("\nVolatile Publication:");
+        testPublisher(new VolatilePublisher<>());
+
+        System.out.println("\nAtomicReference Publication:");
+        testPublisher(new AtomicPublisher<>());
+    }
+
+    static void testPublisher(Publisher<Message> publisher) throws InterruptedException {
+        Thread producer = new Thread(() -> {
+            for (int i = 1; i <= 5; i++) {
+                publisher.publish(new Message("Msg" + i, "Text" + i));
+                try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+            }
+        });
+
+        Thread consumer = new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                Message m = publisher.get();
+                if (m != null)
+                    System.out.println(Thread.currentThread().getName() + " read: " + m.getId() + " - " + m.getText());
+                try { Thread.sleep(40); } catch (InterruptedException ignored) {}
+            }
+        });
+
+        producer.start(); consumer.start();
+        producer.join(); consumer.join();
+    }
+}
